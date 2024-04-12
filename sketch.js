@@ -75,7 +75,7 @@ const buoy_color = '#521724';     // options buoy color (dark red)
 
 
 function setup() {
-  checkMobile();    // determine browser type
+  checkMobile(); // determine browser type
 
   if( isMobile ) { // swap width and height for mobile users
     w = windowHeight;
