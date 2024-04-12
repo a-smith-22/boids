@@ -77,16 +77,19 @@ const buoy_color = '#521724';     // options buoy color (dark red)
 function setup() {
   checkMobile();    // determine browser type
 
+
   if( isMobile ) { // swap width and height for mobile users
     w = windowHeight;
     h = windowWidth; 
     textSize(12); text("mobile", w/2, h/2);
-  } else {
-    w = windowHeight;
-    h = windowWidth;
+  } else { // use actual width and height for desktop users
+    w = windowWidth;  // window dimensions
+    h = windowHeight; // " "
     textSize(12); text("desktop", w/2, h/2);
   }
-  
+  textSize(12); text("test", w/4, h/2);
+
+
   
   createCanvas(w, h);
   
