@@ -154,18 +154,22 @@ function draw() {
   //background('#354e63'); // navy blue background
   background(bkgd_color); // grey  
 
+
   push(); // begin screen transformation
   if ( isMobile ) { // rotate screen for mobile devices -> for desktop, keep as is
     translate(w, 0);
     rotate(PI/2);
   }
 
+  click();   // process all mouse/touch actions
+
   waves();   // create wave animations and render background colors (sky and ocean)
   sky();     // sky background texture
-  //title();   // display game title
+  //title(); // display game title
   options(); // displays option buoys and allows user selection
   ocean();   // ocean background color
   reset();   // resets all objects if buoy is selected
+
   
   // Animate all boids
   for(let i = 0; i < boids.length; i++) {
@@ -185,6 +189,8 @@ function draw() {
   remove_boid();   // deletes boids if they are out-of-bounds or eaten by shark 
 
   pop(); // end screen transformation
+
+  fill(255); noStroke(); textSize(20); text("test1", w/2, h/2);
 }
 
 
@@ -419,59 +425,71 @@ function remove_boid() {
 
 
 
-function mouseClicked() {
-  // Create new boid with each mouse click
+// Process all click & touch actions
 
-  // Boid Mode
-  if( game_option == 0 ) { // boid placement
-    if( mouseX > 0 && mouseX < w && mouseY > wave_ht*h && mouseY < h ) { // mouse must be inside screen
-      
-      if( boids.length >= max_boid_pop ) { // if limit is exceeded, remove first item from array
-        boids.shift();
-      }
-      let tempB = new Boid(mouseX, mouseY, random(-1,1), random(-1,1), boids); // give boid mouse position with random velocity
-      boids.push(tempB); // add boid at end of array
-
-    }
+function mouseReleased () {
+  // Turn off mouse click when released.
+  if( isMobile == false ) {
+    mouseClick = true; 
+    return false; // prevent default behavior in browser
   }
+}
 
-  // Barrier Mode
-  if( game_option == 1 ) { // barrier placement
-    if( mouseX > br_d/2 && mouseX < w-br_d/2 && mouseY > wave_ht*h+br_d/2 && mouseY < h-br_d/2 ) { // mouse must be inside screen (with added room to place barrier)
-      
-      let allow_place = true; // temp variable to check whether suggested placement would interfere with other barriers
-      for(let i=0; i < barriers.length; i++) { // loop through all barriers to avoid placing on top of one another
-        if( dist(mouseX, mouseY, barriers[i].pos.x, barriers[i].pos.y) < br_d ) {
-          allow_place = false;
-        } else {
-          continue;
-        }
-      } 
-      if( allow_place ) { // no overlap detected -> place barrier
-        if( barriers.length >= max_barrier_pop ) { // if limit is exceeded, remove first item from array
-          barriers.shift();
-        }
-        let tempB = new Barrier(mouseX, mouseY, barriers); // give boid mouse position with random velocity
-        barriers.push(tempB); // add barrier at end of array
-      } else {
-        //allow_place = true; // reset for next cycle
-      }
-
-    }
+function touchEnded () {
+  // Turn off mouse click when released (mobile version).
+  if( isMobile == true ) {
+    mouseClick = true; 
+    return false; // prevent default behavior in browser
   }
-
-  // Shark Mode
-  if( game_option == 2 ) { // shark feature
-  }
-  
 }
 
 
 
-function mouseReleased() {
-  // Turn off mouse click when released
-  mouseClick = true; 
-  return false; // prevent default behavior in browser
+
+function click () {
+  // Process all mouse or touch actions using mouseClick variable.
+  
+  if( mouseClick == true ) {
+
+    // Boid Mode
+    if( game_option == 0 ) { // boid placement
+      if( mouseX > 0 && mouseX < w && mouseY > wave_ht*h && mouseY < h ) { // mouse must be inside screen
+        
+        if( boids.length >= max_boid_pop ) { // if limit is exceeded, remove first item from array
+          boids.shift();
+        }
+        let tempB = new Boid(mouseX, mouseY, random(-1,1), random(-1,1), boids); // give boid mouse position with random velocity
+        boids.push(tempB); // add boid at end of array
+
+      }
+    }
+
+    // Barrier Mode
+    if( game_option == 1 ) { // barrier placement
+      if( mouseX > br_d/2 && mouseX < w-br_d/2 && mouseY > wave_ht*h+br_d/2 && mouseY < h-br_d/2 ) { // mouse must be inside screen (with added room to place barrier)
+        
+        let allow_place = true; // temp variable to check whether suggested placement would interfere with other barriers
+        for(let i=0; i < barriers.length; i++) { // loop through all barriers to avoid placing on top of one another
+          if( dist(mouseX, mouseY, barriers[i].pos.x, barriers[i].pos.y) < br_d ) {
+            allow_place = false;
+          } else {
+            continue;
+          }
+        } 
+        if( allow_place ) { // no overlap detected -> place barrier
+          if( barriers.length >= max_barrier_pop ) { // if limit is exceeded, remove first item from array
+            barriers.shift();
+          }
+          let tempB = new Barrier(mouseX, mouseY, barriers); // give boid mouse position with random velocity
+          barriers.push(tempB); // add barrier at end of array
+        } else {
+          //allow_place = true; // reset for next cycle
+        }
+
+      }
+    }
+
+  }
 }
 
 
