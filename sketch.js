@@ -72,9 +72,12 @@ const buoy_color = '#521724';     // options buoy color (dark red)
 
 
 function setup() {
-  w = windowWidth; 
-  h = windowHeight; // window dimensions
-  createCanvas(w, h);
+  w = windowWidth;  // window dimensions
+  h = windowHeight; // " "
+  if( h > w ) { // swap width and height for mobile users
+    w = windowHeight;
+    h = windowWidth; 
+  }
   
   // Define boid size
   bw = w*h * bw_area_ratio; // overall size based on screen area
