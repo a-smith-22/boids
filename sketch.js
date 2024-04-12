@@ -5,6 +5,9 @@ UPDATED: 4/11/3024
 NOTES:
 */
 
+// System variables 
+let isMobile = false; // whether browser is on mobile device -> used to change touch detection and rotate screen orientation
+
 // Create boids array
 const max_boid_pop = 100; // set limit on population of boids
 let boids = [];           // create empty boids array
@@ -72,12 +75,18 @@ const buoy_color = '#521724';     // options buoy color (dark red)
 
 
 function setup() {
+  checkMobile();    // determine browser type
+
   w = windowWidth;  // window dimensions
   h = windowHeight; // " "
-  if( h > w ) { // swap width and height for mobile users
+  if( isMobile ) { // swap width and height for mobile users
     w = windowHeight;
     h = windowWidth; 
   }
+  textSize(12); text("mobile", w/2, h/2);
+
+  
+  createCanvas(w, h);
   
   // Define boid size
   bw = w*h * bw_area_ratio; // overall size based on screen area
@@ -120,6 +129,24 @@ function windowResized() {
   dist_s = bh * 1.4;
   dist_a = bh * 5.0; 
   dist_c = bh * 8.0;
+}
+
+
+
+function checkMobile() {
+  // Determines whether browser is a mobile device. 
+  // https://www.geeksforgeeks.org/how-to-detect-whether-the-website-is-being-opened-in-a-mobile-device-or-a-desktop-in-javascript/
+  
+  let details = navigator.userAgent; // storing user's device details in a variable
+  let regexp = /android|iphone|kindle|ipad/i; // creating a regular expression containing some mobile devices keywords to search it in details string
+  let isMobileDevice = regexp.test(details); // using test() method to search regexp in details it returns boolean value
+  
+  // set mobile setting
+  if (isMobileDevice) { 
+    isMobile = true; 
+  } else { 
+    isMobile = false; 
+  }
 }
 
 
