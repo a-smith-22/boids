@@ -76,7 +76,8 @@ const buoy_color = '#521724';     // options buoy color (dark red)
 
 function setup() {
   checkMobile();    // determine browser type
-
+  //isMobile = true;
+/*
   if( isMobile ) { // swap width and height for mobile users
     w = windowHeight;
     h = windowWidth; 
@@ -84,7 +85,11 @@ function setup() {
     w = windowWidth;  // window dimensions
     h = windowHeight; // " "
   }
-  
+*/
+
+  w = windowWidth;  // window dimensions
+  h = windowHeight; // " "
+
   createCanvas(w, h);
   
   // Define boid size
@@ -154,12 +159,13 @@ function draw() {
   //background('#354e63'); // navy blue background
   background(bkgd_color); // grey  
 
-
+/*
   push(); // begin screen transformation
   if ( isMobile ) { // rotate screen for mobile devices -> for desktop, keep as is
     translate(w, 0);
     rotate(PI/2);
   }
+*/
 
   click();   // process all mouse/touch actions
 
@@ -188,9 +194,9 @@ function draw() {
 
   remove_boid();   // deletes boids if they are out-of-bounds or eaten by shark 
 
-  pop(); // end screen transformation
+  //pop(); // end screen transformation
 
-  fill(255); noStroke(); textSize(20); text("test1", w/2, h/2);
+  fill(255); noStroke(); textSize(20); text("test2", w/2, h/2);
 }
 
 
