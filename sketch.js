@@ -75,7 +75,7 @@ const buoy_color = '#521724';     // options buoy color (dark red)
 
 
 function setup() {
-  checkMobile(); // determine browser type
+  checkMobile();    // determine browser type
 
   if( isMobile ) { // swap width and height for mobile users
     w = windowHeight;
@@ -154,6 +154,12 @@ function draw() {
   //background('#354e63'); // navy blue background
   background(bkgd_color); // grey  
 
+  push(); // begin screen transformation
+  if ( isMobile ) { // rotate screen for mobile devices -> for desktop, keep as is
+    translate(w, 0);
+    rotate(PI/2);
+  }
+
   waves();   // create wave animations and render background colors (sky and ocean)
   sky();     // sky background texture
   //title();   // display game title
@@ -178,7 +184,7 @@ function draw() {
 
   remove_boid();   // deletes boids if they are out-of-bounds or eaten by shark 
 
-
+  pop(); // end screen transformation
 }
 
 
