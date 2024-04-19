@@ -1,9 +1,10 @@
 /*
 TITLE: Boids Animation
 AUTHOR: Andrew Smith (Copyright 2024)
-UPDATED: 4/13/3024
+UPDATED: 4/18/3024
 NOTES:
 - 4/13/2024: Beta release (V1.0.0)
+- 4/18/2024: Added info screen
 */
 
 // System variables 
@@ -35,13 +36,13 @@ const dv_acc = 0.01; // acceleration magnitude to encourage set speed (max speed
 
 // Wall and barrier parameters   
 const w_acc = 0.60;         // maximum magnitude of acceleration to avoid walls
-const ba_acc = 0.20;        // " " barriers
+const ba_acc = 0.10;        // " " barriers
 const min_w_acc = 0.05;     // minimum magnitude of acceleration -> prevents "wall riding"
 const g_acc = 0.2;          // if boid is "out of water" push down with higher acceleration
 const wall_dist = 0.040;    // distance from wall to activate wall avoidance (as percent of screen width)
-const barr_dist = 1.2;      // " " barrier avoidance distance (as percent of barrier diameter)
+const barr_dist = 1.4;      // " " barrier avoidance distance (as percent of barrier diameter)
 const barr_predict = 20;    // number of frames to predict boid position for barrier avoidance (allows smoother movement)
-const acc_wall_pwr = 10;   // power law value for distance scaling near wall
+const acc_wall_pwr = 10;    // power law value for distance scaling near wall
 
 // Shark parameters
 const shrk_acc = 0.25;      // maximum magnitude of acceleration to avoid shark
@@ -50,7 +51,7 @@ const shrk_eat_dist = 0.16; // distance from shark center to eat boids (as perce
 
 // Flocking mechanics parameters
 let dist_s, dist_a, dist_c; // radius of region around boid for flocking behaviors (seperation, alignment, cohesion)
-const scl_s = 0.002;        // scaling acceleration for seperation
+const scl_s = 0.001;        // scaling acceleration for seperation
 const scl_a = 0.02;         // " " alignment
 const scl_c = 0.0002;       // " " cohesion
 
@@ -68,9 +69,12 @@ const buoy_pos = [[0.74, 0], [0.79, 0], [0.85, 0], [0.90, 0], [0.96, 0]]; // (x,
 const buoy_dia = 0.04;          // diameter of option buoy (percentage of screen width)
 const buoy_dy = buoy_dia * 0.2; // vertical offset of buoy above surface position
 let mouseClick = false;         // boolean variable to determine whether mouse button has been pressed
-let game_option = 0;            // object placement mode -> 0 = boid, 1 = barrier, 2 = shark, 3 = reset, 4 = info
+let game_option = 4;            // object placement mode -> 0 = boid, 1 = barrier, 2 = shark, 3 = reset, 4 = info
 let prev_option = 0;            // previous game option to -> mode to return to after resuming (exiting info screen)
 let pauseGame = false;          // stops boid movement for information screen
+
+// Info screen
+let info_text_img, info_text_bkgd_img; // images for info screen display
 
 // Graphical display
 const bkgd_color = '#2C2C2C';     // background color -> sky blue = '#354e63', dark grey = '#2C2C2B'
@@ -81,6 +85,16 @@ const buoy_color = '#521724';     // options buoy color (dark red)
 const info_color = '#696969';     // color to display info screen panel
 const bkgd_blur = '#000000BB';    // darken screen for info text display
 const info_txt_color = '#000000'; // text color for info screen
+
+
+
+function preload() {
+  // Load images for info screen
+  info_text_img = loadImage('assets/info_screen.png');           // preload both images 
+  info_text_bkgd_img = loadImage('assets/info_screen_bkgd.png'); // " "
+}
+
+
 
 function setup() {
   checkMobile();    // determine browser type
@@ -433,23 +447,60 @@ function remove_boid() {
 function info() {
   // Display information tab for the game. 
 
-  // Darken background
-  fill(bkgd_blur); noStroke();
-  rectMode(CORNERS);
-  rect(0,0,w,h);
+  let img_width;            // width of info screen pop-up
+  let img_width_pct = 0.80; // image is XX% of minimum screen dimension
+  if( h > w ) {
+    img_width = w * img_width_pct; // scale image to fit smallest dimension
+  } 
+  else {
+    img_width = h * img_width_pct; // " "
+  }
 
-  // Background box
-  fill(info_color); noStroke();
-  rectMode(CORNERS);
-  let txt_box_w = 0.4*w; // width of text box
-  rect( (w-txt_box_w)/2 , 0.05*h , w-(w-txt_box_w)/2 , 0.95*h , 0.02*w);
+  imageMode(CENTER);
 
-  let t = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer metus erat, commodo at tortor eu, commodo vestibulum neque. Nullam ut urna tincidunt, tristique justo eu, ultrices ipsum. Curabitur auctor maximus ligula, a pretium urna rhoncus ut. Donec ac cursus augue, non placerat nisi. Cras iaculis nisi lorem, in aliquet mauris dapibus ac. Sed semper, enim nec mollis elementum, massa lacus cursus enim, id euismod tellus velit non ante. Quisque sit amet tellus elementum nulla auctor viverra. Aliquam erat volutpat. Nam rutrum eros eleifend, eleifend est in, efficitur enim. Pellentesque ac mi sit amet tortor vulputate sodales et eu magna.";
-  let txt_font_size = w*0.014; 
-  fill(info_txt_color); noStroke(); 
-  textAlign(LEFT, TOP); textSize(txt_font_size); textWrap(WORD);
-  textFont('Helvetica');
-  text(t, 0.3*w + txt_font_size/2, 0.05*h + txt_font_size, txt_box_w);
+  // Background
+  image(info_text_bkgd_img, w/2, h/2, img_width, img_width);
+
+  // Text
+  image(info_text_img, w/2, h/2, img_width, img_width);
+
+  // Display all option icons
+  // buoy
+  let x1 = w/2 - img_width * 0.3023; // buoy position
+  let y1 = h/2 + img_width * 0.0290; // " "
+  let temp_d = img_width * 0.125;    // buoy diameter
+  fill(buoy_color); // red
+  stroke(buoy_color); strokeWeight(2);
+  ellipse(x1, y1, temp_d, temp_d); // draw buoy
+  // boid symbol
+  stroke(bg_wave_color); strokeWeight(2); strokeJoin(ROUND); noFill();
+  push();
+  translate(x1, y1);
+  rotate(-PI/6); 
+  let temp_bh = temp_d * 0.5;        // temporary boid height (icon display)
+  let temp_bw = temp_bh / bwh_ratio; // " " width
+  triangle(-temp_bh * 0.4, -temp_bw/2, -temp_bh * 0.4, temp_bw/2, temp_bh * 0.6, 0); // triangular boid
+  pop();  
+
+  // buoy
+  let y2 = h/2 + img_width * 0.1740; // buoy position
+  fill(buoy_color); // red
+  stroke(buoy_color); strokeWeight(2);
+  ellipse(x1, y2, temp_d, temp_d); // draw buoy
+  // barrier symbol
+  stroke(bg_wave_color); strokeWeight(2); noFill();
+  ellipse(x1, y2, temp_d * 0.55, temp_d * 0.55); // slightly smaller circle inside buoy
+
+  // buoy
+  let y3 = h/2 + img_width * 0.318; // buoy position
+  fill(buoy_color); // red
+  stroke(buoy_color); strokeWeight(2);
+  ellipse(x1, y3, temp_d, temp_d); // draw buoy
+  // shark symbol
+  stroke(bg_wave_color); strokeWeight(2); noFill();
+  arc(x1 + temp_d/2 * 0.25, y3 + temp_d/2 * 0.15, temp_d * 0.65, temp_d * 0.65, PI, PI*1.6); // dorsal side of fin
+  arc(x1 + temp_d/2 * 0.45, y3 + temp_d/2 * 0.15, temp_d * 0.25, temp_d * 0.62, PI*1.0, PI*1.5); // ventral " ""
+  line(x1 - temp_d/2 * 0.65, y3 + temp_d/2 * 0.15, x1 + temp_d/2 * 0.65, y3 + temp_d/2 * 0.15); // wave line in icon
 
 }
 
@@ -653,6 +704,9 @@ class Boid {
     let i = round(this.pos.x / dx); // index of wave above boid
     let wave_y_pos = wave_pos[i];   // height of wave above current boid
 
+    // determine boid position a given timestep in the future
+    let next_pos = this.pos.copy().add(this.vel.copy().mult(barr_predict)); // position of boid XX frames in future -> used to avoid barriers before it approaches it
+
     // Determine repulsion acceleration for DISPLAY WINDOW
     if( this.pos.x < wall_dist*w) { // LEFT wall
       ignore_flock = true;                                // ignore flock
@@ -662,9 +716,9 @@ class Boid {
     else if( this.pos.x > w - wall_dist*w) { // RIGHT wall
       ignore_flock = true;                               // see above
       let a = acc_mag(this.pos.x, w, this.vel.x, w_acc); // " "
-      this.ba.set(-a, 0);                                // " "
+      this.ba.add(-a, 0);                                // " "
     }
-    else if( this.pos.y < (wave_ht*h + wall_dist*w * 0.4) && this.pos.y > wave_y_pos ) { // WAVE boundary line. boid is in water near wave surface but NOT in air -> allow more "give" as boids can approach surface of water
+    else if( this.pos.y < (wave_ht*h + wall_dist*w * 0.4) && this.pos.y > wave_y_pos) { // WAVE boundary line. boid is in water near wave surface but NOT in air -> allow more "give" as boids can approach surface of water
       ignore_flock = true;                                        // see above
       let a = acc_mag(this.pos.y, wave_ht*h, -this.vel.y, w_acc); // " "
       this.ba.add(0, a);                                          // " "
@@ -684,12 +738,20 @@ class Boid {
 
     // Avoid Barriers -> accelerate in opposite direction
     for(let i=0; i<barriers.length; i++) {
-      if( dist(this.pos.x, this.pos.y, barriers[i].pos.x, barriers[i].pos.y) < barr_dist*br_d ) { // if boid is too close to barrier
-        ignore_flock = true;    // see above (wall barrier mechanics)
-        let next_pos = this.pos.copy().add(this.vel.copy().mult(barr_predict)); // position of boid XX frames in future -> used to avoid barrier before it approaches it
+      let d = dist(this.pos.x, this.pos.y, barriers[i].pos.x, barriers[i].pos.y); // distance between boid and barrier
+      if( d < barr_dist*br_d ) { // if boid is too close to barrier
+        ignore_flock = true;                                                    // see above (wall barrier mechanics)
         let dp = p5.Vector.sub(next_pos, barriers[i].pos);                      // difference in boid and barrier position, direction to accelerate boid away from barrier
         dp.normalize();                                                         // normalize vector
-        this.ba.set( p5.Vector.mult(dp, ba_acc) );                              // set constant acceleration
+        let v_rel = this.vel.copy().dot(dp);                                    // velocity relative to the barrier -> positive if moving away 
+        let a = ba_acc * (d / (barr_dist*br_d)) * (-v_rel / max_vel);           // map distance and speed to acceleration -> similar to wall procedure
+        if ( a < min_w_acc ) {                                                  // prevent boids form orbitting around barrier
+          a = min_w_acc;  
+        } 
+        //this.ba.set( p5.Vector.mult(dp, ba_acc) );  // set constant acceleration
+        if( this.pos.y > wave_y_pos ) {         // ignore barrier repulsion near the surface (prevents boids from "flying")
+          this.ba.add( p5.Vector.mult(dp, a) ); // set acceleration based on relative velocity
+        } 
       }
     }
 
@@ -697,12 +759,16 @@ class Boid {
     if( game_option == 2 && this.pos.y > wave_y_pos) { // shark mode -> only active when boid is in the water
       let m = createVector(mouseX, mouseY);                         // mouse position vector
       if( dist(this.pos.x, this.pos.y, mouseX, mouseY) < shrk_dist*br_d ) { // if boid is too close to shark
-        ignore_flock = true;                                          // see above (wall barrier mechanics)
-        let next_pos = this.pos.copy().add(this.vel.copy().mult(20)); // position of boid 20 frames in future -> used to avoid barrier before it approaches it
-        let dp = p5.Vector.sub(next_pos, m);                          // difference in boid and shark position, direction to accelerate boid away
-        dp.normalize();                                               // normalize vector
-        this.ba.set( p5.Vector.mult(dp, shrk_acc) );                  // set constant acceleration
-      }
+        ignore_flock = true;                                                // see above (wall barrier mechanics)
+        let dp = p5.Vector.sub(this.pos, m);                                // difference in boid and shark position, direction to accelerate boid away
+        dp.normalize();                                                     // normalize vector
+        this.ba.add( p5.Vector.mult(dp, shrk_acc) );                        // set constant acceleration
+        // remove top wall repulsion force
+        if( this.pos.y < (wave_ht*h + wall_dist*w * 0.4) ) {
+          let a = acc_mag(this.pos.y, wave_ht*h, -this.vel.y, w_acc); // see above (wall barrier mechanics)
+          this.ba.sub(0, a);                                          // " "
+        }
+      } 
     }
 
 
@@ -811,19 +877,19 @@ class Boid {
 
 
 function acc_mag(xp, xw, v, a_max) {
-  // Compute magnitude of acceleration based on boid position (xp), wall position (xw), current speed (v), and maximum acceleration desired (a_max)
+  // Compute magnitude of acceleration based on boid position (xp), wall position (xw), relative speed (v), and maximum acceleration desired (a_max)
   let d = pow( abs(xp - xw) / (wall_dist*w) , acc_wall_pwr);  // normalized distance between boid and wall -> scale using power law for added repulsion closer to wall
   let a = map(d, 0, 1, a_max, 0) ;                            // linearly map "distance" to wall with acceleration value
   
   if( v > 0 ) { // boid is moving towards wall
     a = a * (v / max_vel); // scale acceleration based on boid speed relative to barrier -> slower speed = less acceleration
   } else {
-    a = min_w_acc;              // if boid is moving away from wall, set minimum acceleration
+    a = min_w_acc;         // if boid is moving away from wall, set minimum acceleration
   }
 
   if ( a < min_w_acc) {
-    a = min_w_acc;              // keep acceleration at or above minimum if elsewise below
-  }
+    a = min_w_acc;         // keep acceleration at or above minimum if elsewise below
+  }  
 
   return a; 
 }
