@@ -156,9 +156,13 @@ function set_scale(){
   dist_c = bh * 8.0;
 
   // Rescale all size, position, speed, and accelerations for mobile mode
+  pixelDensity(1); 
   if(isMobile){
     bw = min(w,h) * bw_area_ratio * 0.8;
 
+    buoy_pos = [[0.30, 0], [0.45, 0], [0.60, 0], [0.75, 0], [0.90, 0]];
+
+/*  
     max_vel = 2.0 * displayDensity();     
     abs_max_vel = 5.0 * displayDensity();
 
@@ -184,7 +188,7 @@ function set_scale(){
     scl_s *= displayDensity;
     scl_a *= displayDensity;
     scl_c *= displayDensity;
-
+*/
   }
 }
 
