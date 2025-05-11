@@ -157,8 +157,9 @@ function set_scale(){
 
   // Rescale all size, position, speed, and accelerations for mobile mode
   pixelDensity(1); 
-  frameRate(60);
   if(isMobile){
+    frameRate(120);
+
     bw = min(w,h) * bw_area_ratio * 0.8; // make boids slightly smaller
     br_b_ratio = 3.0; // same as above for barriers
 
@@ -193,6 +194,8 @@ function set_scale(){
     scl_a *= displayDensity;
     scl_c *= displayDensity;
 */
+  } else {
+    frameRate(60);
   }
 }
 
@@ -238,8 +241,6 @@ function draw() {
   remove_boid();   // deletes boids if they are out-of-bounds or eaten by shark 
 
   //fill(255); noStroke(); textSize(20); text("test2", w/2, h/2);
-
-  print(mouseClick);
 
   mouseClick = false; // reset mouse boolean at end of frame
 }
