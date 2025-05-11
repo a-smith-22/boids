@@ -198,6 +198,10 @@ function draw() {
   remove_boid();   // deletes boids if they are out-of-bounds or eaten by shark 
 
   //fill(255); noStroke(); textSize(20); text("test2", w/2, h/2);
+
+  print(mouseClick);
+
+  mouseClick = false; // reset mouse boolean at end of frame
 }
 
 
@@ -384,7 +388,7 @@ function options () {
       }
     }
     
-    mouseClick = false; // reset mouse boolean
+    //mouseClick = false; // reset mouse boolean
   }
 
 }
@@ -482,11 +486,12 @@ function info() {
 // Process all click & touch actions
 function mouseReleased () {
   // Turn off mouse click when released.
-  if( isMobile == false ) {
+  //if( isMobile == false ) {
   mouseClick = true; 
-  return false; // prevent default behavior in browser
-  }
+  //return false; // prevent default behavior in browser
+  //}
 }
+/*
 function touchEnded () {
   // Turn off mouse click when released (mobile version).
   if( isMobile == true ) {
@@ -494,7 +499,7 @@ function touchEnded () {
     return false; // prevent default behavior in browser
   }
 }
-
+*/
 
 
 
@@ -545,6 +550,8 @@ function click () {
     if( game_option == 4 ) {
       game_option = prev_option; // return to last mode
     }
+
+    //mouseClick = false; // reset mouse click
 
   }
 }
