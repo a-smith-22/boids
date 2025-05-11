@@ -29,8 +29,8 @@ let br_d;               // diameter of each barrier
 const br_b_ratio = 4.0; // ratio of barrier diameter to boid width 
 
 // Iso movement constants for boids
-const max_vel = 2.0;     // maximum target velocity in pixels/sec (desired speed, true vel may exceed this due to barriers/shark)
-const abs_max_vel = 5.0; // actual maximum velocity -> threshold for boid movement
+var max_vel = 2.0;     // maximum target velocity in pixels/sec (desired speed, true vel may exceed this due to barriers/shark)
+var abs_max_vel = 5.0; // actual maximum velocity -> threshold for boid movement
 const pnvs   = 0.10; // velocity (v.x, v.y) step size for perlin noise function
 const vr_scl = 0.03; // magnitude of noise (+/-) for velocity
 const dv_acc = 0.01; // acceleration magnitude to encourage set speed (max speed)
@@ -66,9 +66,9 @@ let wave_pos = [];         // vertical position of each wave point
 let wave_pos_2 = [];       // " " background wave
 
 // Option settings
-const buoy_pos = [[0.74, 0], [0.79, 0], [0.85, 0], [0.90, 0], [0.96, 0]]; // (x,y) position of each option buoy (as percentage of screen width, x, or absolute, y)
-const buoy_dia = 0.04;          // diameter of option buoy (percentage of screen width)
-const buoy_dy = buoy_dia * 0.2; // vertical offset of buoy above surface position
+var buoy_pos = [[0.74, 0], [0.79, 0], [0.85, 0], [0.90, 0], [0.96, 0]]; // (x,y) position of each option buoy (as percentage of screen width, x, or absolute, y)
+var buoy_dia = 0.04;          // diameter of option buoy (percentage of screen width)
+var buoy_dy = buoy_dia * 0.2; // vertical offset of buoy above surface position
 let mouseClick = false;         // boolean variable to determine whether mouse button has been pressed
 let game_option = 4;            // object placement mode -> 0 = boid, 1 = barrier, 2 = shark, 3 = reset, 4 = info
 let prev_option = 0;            // previous game option to -> mode to return to after resuming (exiting info screen)
@@ -154,6 +154,15 @@ function set_scale(){
   dist_s = bh * 1.4;
   dist_a = bh * 5.0; 
   dist_c = bh * 8.0;
+
+  if(isMobile){
+    bw = min(w,h) * bw_area_ratio * 0.8;
+    max_vel = 2.0 * displayDensity();     
+    abs_max_vel = 5.0 * displayDensity();
+    buoy_pos = [[0.50, 0], [0.60, 0], [0.70, 0], [0.80, 0], [0.90, 0]];
+    buoy_dia = 0.04 * displayDensity();
+    buoy_dy = buoy_dia * 0.2;
+  }
 }
 
 
@@ -304,7 +313,7 @@ function options () {
   // Draw option buoys
   for(let i=0; i<buoy_pos.length; i++) { // loop through all 6 options
     // calculate position
-    let x = buoy_pos[i][0]*w;                     // buoy x position
+    let x = buoy_pos[i][0]*w                     // buoy x position
     let j = floor(buoy_pos[i][0] * num_segments); // get closest index position
     let y = wave_pos[j] - buoy_dy*w;              // set buoy y position as floating above foreground wave
     buoy_pos[i][1] = y;                           // " "
@@ -405,7 +414,7 @@ function remove_boid() {
 
   for(let i = 0; i < boids.length; i++) {
     // Out-of-bounds detection
-    if( boids[i].pos.x < 0 || boids[i].pos.x > w || boids[i].pos.y < 0 || boids[i].pos.y > w ) { // out-of-bounds lines -> allow boids to be above wave height, all other bounds are screen walls
+    if( boids[i].pos.x < 0 || boids[i].pos.x > w*displayDensity() || boids[i].pos.y < 0 || boids[i].pos.y > h*displayDensity()) { // out-of-bounds lines -> allow boids to be above wave height, all other bounds are screen walls
       boids.splice(i, 1); // remove specific boid from array 
       continue;           // check other boids
     }
@@ -897,7 +906,7 @@ class Barrier {
 
     // Draw pattern on inside of barrier
     let dx = w / (num_segments-1);                            // width between segments (same positions as sky pattern)
-    let r = buoy_dia*w/2; // radius of each buoy
+    let r = buoy_dia*w/2*0.85; // radius of each buoy
     let i_start = ceil( (this.pos.x - r) / dx ) - 2;  // index of first segment within width of buoy
     let i_end = floor( (this.pos.x + r) / dx ) + 2; // " " last segment " "
     for(let i=i_start; i<=i_end; i++) { // only loop through necessary segments
