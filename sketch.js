@@ -43,7 +43,7 @@ var min_w_acc = 0.05;     // minimum magnitude of acceleration -> prevents "wall
 var g_acc = 0.2;          // if boid is "out of water" push down with higher acceleration
 var wall_dist = 0.040;    // distance from wall to activate wall avoidance (as percent of screen width)
 var barr_dist = 1.4;      // " " barrier avoidance distance (as percent of barrier diameter)
-const barr_predict = 20;    // number of frames to predict boid position for barrier avoidance (allows smoother movement)
+var barr_predict = 20;    // number of frames to predict boid position for barrier avoidance (allows smoother movement)
 var acc_wall_pwr = 10;    // power law value for distance scaling near wall
 
 // Shark parameters
@@ -169,6 +169,11 @@ function set_scale(){
     buoy_pos = [[0.30, 0], [0.45, 0], [0.60, 0], [0.75, 0], [0.90, 0]]; // increase spacing
 
     num_segments = 100; // decrease sky resolution
+
+    max_vel *= fpsr; // increase speed
+    abs_max_vel *= fpsr;
+    barr_predict *= fpsr; // increase frame prediction distance as speed is doubled 
+
 /*  
     max_vel = 2.0 * displayDensity();     
     abs_max_vel = 5.0 * displayDensity();
