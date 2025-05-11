@@ -171,8 +171,8 @@ function set_scale(){
     num_segments = 100; // decrease sky resolution
 
     // Scale all velocity and acceleration parameters
-    max_vel *= fpsr;
-    abs_max_vel *= fpsr;
+    max_vel *= fpsr * 1.4; // speed up boids
+    abs_max_vel *= fpsr * 1.4;
     pnvs *= fpsr;
     vr_scl *= fpsr;
     dv_acc *= fpsr;
@@ -815,9 +815,11 @@ class Boid {
       this.vel = this.vel.add(this.acc); // increase velocity only if below max threshold
     } 
     this.pos = this.pos.add(this.vel);  
+    /*
     if(fpsr == 2){
-      //this.pos = this.pos.add(this.vel); // repeat twice as fpsr = 2 for mobile
+      this.pos = this.pos.add(this.vel); // repeat twice as fpsr = 2 for mobile
     }
+    */
     
     // reset acceleration
     this.acc.set(0,0);
