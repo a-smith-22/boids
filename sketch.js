@@ -536,16 +536,11 @@ function info() {
 // Process all click & touch actions
 function mouseReleased () {
   // Turn off mouse click when released.
-  /*
   if( isMobile == false ) {
     mouseClick = true; 
     return false; // prevent default behavior in browser
   }
-  */
-  mouseClick = true; 
-
 }
-/*
 function touchEnded () {
   // Turn off mouse click when released (mobile version).
   if( isMobile == true ) {
@@ -553,7 +548,6 @@ function touchEnded () {
     return false; // prevent default behavior in browser
   }
 }
-*/
 
 
 
