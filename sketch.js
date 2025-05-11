@@ -20,9 +20,9 @@ const max_barrier_pop = 20; // limit on number of barrier pieces to create
 let barriers = []; 
 
 // Define constants for each boid
-let bw, bh;                     // size (width, height) based on screen dimensions
+let bw, bh;                 // size (width, height) based on screen dimensions
 const bw_area_ratio = 0.04; // ratio of width to minimum screen width or height
-const bwh_ratio = 1.8;          // aspect ratio of boids (bh / bw)
+const bwh_ratio = 1.8;      // aspect ratio of boids (bh / bw)
 
 // Define constants for each barrier
 let br_d;               // diameter of each barrier
@@ -31,33 +31,33 @@ const br_b_ratio = 4.0; // ratio of barrier diameter to boid width
 // Iso movement constants for boids
 var max_vel = 2.0;     // maximum target velocity in pixels/sec (desired speed, true vel may exceed this due to barriers/shark)
 var abs_max_vel = 5.0; // actual maximum velocity -> threshold for boid movement
-const pnvs   = 0.10; // velocity (v.x, v.y) step size for perlin noise function
-const vr_scl = 0.03; // magnitude of noise (+/-) for velocity
-const dv_acc = 0.01; // acceleration magnitude to encourage set speed (max speed)
+var pnvs   = 0.10; // velocity (v.x, v.y) step size for perlin noise function
+var vr_scl = 0.03; // magnitude of noise (+/-) for velocity
+var dv_acc = 0.01; // acceleration magnitude to encourage set speed (max speed)
 
 // Wall and barrier parameters   
-const w_acc = 0.60;         // maximum magnitude of acceleration to avoid walls
-const ba_acc = 0.10;        // " " barriers
-const min_w_acc = 0.05;     // minimum magnitude of acceleration -> prevents "wall riding"
-const g_acc = 0.2;          // if boid is "out of water" push down with higher acceleration
-const wall_dist = 0.040;    // distance from wall to activate wall avoidance (as percent of screen width)
-const barr_dist = 1.4;      // " " barrier avoidance distance (as percent of barrier diameter)
+var w_acc = 0.60;         // maximum magnitude of acceleration to avoid walls
+var ba_acc = 0.10;        // " " barriers
+var min_w_acc = 0.05;     // minimum magnitude of acceleration -> prevents "wall riding"
+var g_acc = 0.2;          // if boid is "out of water" push down with higher acceleration
+var wall_dist = 0.040;    // distance from wall to activate wall avoidance (as percent of screen width)
+var barr_dist = 1.4;      // " " barrier avoidance distance (as percent of barrier diameter)
 const barr_predict = 20;    // number of frames to predict boid position for barrier avoidance (allows smoother movement)
-const acc_wall_pwr = 10;    // power law value for distance scaling near wall
+var acc_wall_pwr = 10;    // power law value for distance scaling near wall
 
 // Shark parameters
-const shrk_acc = 0.25;      // maximum magnitude of acceleration to avoid shark
-const shrk_dist = 1.0;      // shark avoidance distance (as percent of barrier diameter)
+var shrk_acc = 0.25;      // maximum magnitude of acceleration to avoid shark
+var shrk_dist = 1.0;      // shark avoidance distance (as percent of barrier diameter)
 const shrk_eat_dist = 0.16; // distance from shark center to eat boids (as percent of shark repulsion region diameter)
 
 // Flocking mechanics parameters
 let dist_s, dist_a, dist_c; // radius of region around boid for flocking behaviors (seperation, alignment, cohesion)
-const scl_s = 0.001;        // scaling acceleration for seperation
-const scl_a = 0.02;         // " " alignment
-const scl_c = 0.0002;       // " " cohesion
+var scl_s = 0.001;        // scaling acceleration for seperation
+var scl_a = 0.02;         // " " alignment
+var scl_c = 0.0002;       // " " cohesion
 
 // Wave generation mechanics
-const num_segments = 200;  // segments of wave lines to use
+var num_segments = 200;  // segments of wave lines to use
 const wave_amp = 0.10;     // vertical height of noise (as percent of screen height)
 const wave_ht = 0.2;       // maximum height of the waves (as percent of screen height, used for collision detection and GUI)
 const wave_ns = 0.002;     // scalar value of the noise function
@@ -155,13 +155,36 @@ function set_scale(){
   dist_a = bh * 5.0; 
   dist_c = bh * 8.0;
 
+  // Rescale all size, position, speed, and accelerations for mobile mode
   if(isMobile){
     bw = min(w,h) * bw_area_ratio * 0.8;
+
     max_vel = 2.0 * displayDensity();     
     abs_max_vel = 5.0 * displayDensity();
-    buoy_pos = [[0.50, 0], [0.60, 0], [0.70, 0], [0.80, 0], [0.90, 0]];
+
+    buoy_pos = [[0.30, 0], [0.45, 0], [0.60, 0], [0.75, 0], [0.90, 0]];
     buoy_dia = 0.04 * displayDensity();
     buoy_dy = buoy_dia * 0.2;
+    num_segments = 100;
+
+    pnvs *= displayDensity;
+    vr_scl *= displayDensity;
+    dv_acc *= displayDensity;
+
+    w_acc *= displayDensity;
+    ba_acc *= displayDensity;
+    min_w_acc *= displayDensity;
+    g_acc *= displayDensity;
+    wall_dist *= displayDensity;
+    acc_wall_pwr *= displayDensity;
+
+    shrk_acc *= displayDensity;
+    shrk_dist *= displayDensity;
+
+    scl_s *= displayDensity;
+    scl_a *= displayDensity;
+    scl_c *= displayDensity;
+
   }
 }
 
@@ -259,13 +282,13 @@ function sky() {
     // Define wave position
     let dx = w / (num_segments-1); // width of each segment (allow room for rightmost segment)
     let x1 = i*dx;
-    let x2 = (i+1)*dx; 
+    //let x2 = (i+1)*dx; 
     let y1_1 = wave_pos[i]; 
-    let y2_1 = wave_pos[i+1];
+    //let y2_1 = wave_pos[i+1];
 
     // Repeat for background wave
     let y1_2 = wave_pos_2[i]; 
-    let y2_2 = wave_pos_2[i+1];
+    //let y2_2 = wave_pos_2[i+1];
     
     // Draw all wave segments & sky background
     if (wave_pos[i] >= wave_pos_2[i] ) {
@@ -414,7 +437,7 @@ function remove_boid() {
 
   for(let i = 0; i < boids.length; i++) {
     // Out-of-bounds detection
-    if( boids[i].pos.x < 0 || boids[i].pos.x > w*displayDensity() || boids[i].pos.y < 0 || boids[i].pos.y > h*displayDensity()) { // out-of-bounds lines -> allow boids to be above wave height, all other bounds are screen walls
+    if( boids[i].pos.x < -w/4 || boids[i].pos.x > w+w/4 || boids[i].pos.y < 0 || boids[i].pos.y > h+h/4) { // out-of-bounds lines -> allow boids to be above wave height, all other bounds are screen walls
       boids.splice(i, 1); // remove specific boid from array 
       continue;           // check other boids
     }
@@ -905,20 +928,20 @@ class Barrier {
     ellipse(this.pos.x, this.pos.y, br_d, br_d); 
 
     // Draw pattern on inside of barrier
-    let dx = w / (num_segments-1);                            // width between segments (same positions as sky pattern)
-    let r = buoy_dia*w/2*0.85; // radius of each buoy
-    let i_start = ceil( (this.pos.x - r) / dx ) - 2;  // index of first segment within width of buoy
-    let i_end = floor( (this.pos.x + r) / dx ) + 2; // " " last segment " "
+    let dx = w / (num_segments-1); // width between segments (same positions as sky pattern)
+    let r = br_d/2; // radius of each buoy
+    let i_start = ceil( (this.pos.x - r) / dx );  // index of first segment within width of buoy
+    let i_end = floor( (this.pos.x + r) / dx ); // " " last segment " "
     for(let i=i_start; i<=i_end; i++) { // only loop through necessary segments
       // calculate length
       let x = i*dx; // position of line segment
       //let dh = sqrt( sq((buoy_dia*w)/2) - sq(x - this.pos.x) ); 
-      let dh = sqrt( 2*sq(r) - sq(x - this.pos.x) ) - 1; // half height of each line segment inside circle
+      let dh = sqrt( sq(r) - sq(x - this.pos.x) ) - 1; // half height of each line segment inside circle
       // draw line segment
       stroke(buoy_color); strokeWeight(2); // same color as above
       line(x, this.pos.y - dh, x, this.pos.y + dh);
     }
-    
+ 
   }
 
 }
