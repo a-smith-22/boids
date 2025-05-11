@@ -819,7 +819,7 @@ class Boid {
     if( this.vel.mag() < abs_max_vel ) {
       this.vel = this.vel.add(this.acc); // increase velocity only if below max threshold
     } 
-    this.pos = this.pos.add(this.vel*fpsr);    
+    this.pos = this.pos.add(this.vel.mult(fpsr));    
     
     // reset acceleration
     this.acc.set(0,0);
