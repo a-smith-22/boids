@@ -170,37 +170,26 @@ function set_scale(){
 
     num_segments = 100; // decrease sky resolution
 
-    max_vel *= fpsr; // increase speed
+    // Scale all velocity and acceleration parameters
+    max_vel *= fpsr;
     abs_max_vel *= fpsr;
-    barr_predict *= fpsr; // increase frame prediction distance as speed is doubled 
+    pnvs *= fpsr;
+    vr_scl *= fpsr;
+    dv_acc *= fpsr;
 
-/*  
-    max_vel = 2.0 * displayDensity();     
-    abs_max_vel = 5.0 * displayDensity();
+    w_acc *= fpsr;
+    ba_acc *= fpsr;
+    min_w_acc *= fpsr;
+    g_acc *= fpsr;
+    barr_predict *= fpsr;
+    acc_wall_pwr *= fpsr;
 
-    buoy_pos = [[0.30, 0], [0.45, 0], [0.60, 0], [0.75, 0], [0.90, 0]];
-    buoy_dia = 0.04 * displayDensity();
-    buoy_dy = buoy_dia * 0.2;
-    num_segments = 100;
+    shrk_acc *= fpsr;
 
-    pnvs *= displayDensity;
-    vr_scl *= displayDensity;
-    dv_acc *= displayDensity;
+    scl_s *= fpsr;
+    scl_a *= fpsr;
+    scl_c *= fpsr;
 
-    w_acc *= displayDensity;
-    ba_acc *= displayDensity;
-    min_w_acc *= displayDensity;
-    g_acc *= displayDensity;
-    wall_dist *= displayDensity;
-    acc_wall_pwr *= displayDensity;
-
-    shrk_acc *= displayDensity;
-    shrk_dist *= displayDensity;
-
-    scl_s *= displayDensity;
-    scl_a *= displayDensity;
-    scl_c *= displayDensity;
-*/
   } else {
     frameRate(60);
     fpsr = 1.0;
@@ -827,7 +816,7 @@ class Boid {
     } 
     this.pos = this.pos.add(this.vel);  
     if(fpsr == 2){
-      this.pos = this.pos.add(this.vel); // repeat twice as fpsr = 2 for mobile
+      //this.pos = this.pos.add(this.vel); // repeat twice as fpsr = 2 for mobile
     }
     
     // reset acceleration
