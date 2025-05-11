@@ -1,10 +1,11 @@
 /*
-TITLE: Boids Animation
+TITLE: Ghish
 AUTHOR: Andrew Smith (Copyright 2024)
-UPDATED: 4/18/3024
+UPDATED: 5/11/2025
 NOTES:
-- 4/13/2024: Beta release (V1.0.0)
-- 4/18/2024: Added info screen
+- 4/13/2024, v1.0.0: Initial release
+- 4/18/2024, v1.0.1: Added info screen 
+- 5/11/2025, v1.0.2: Improved mobile compatibility
 */
 
 // System variables 
@@ -20,7 +21,7 @@ let barriers = [];
 
 // Define constants for each boid
 let bw, bh;                     // size (width, height) based on screen dimensions
-const bw_area_ratio = 0.000024; // ratio of width to screen display area
+const bw_area_ratio = 0.04; // ratio of width to minimum screen width or height
 const bwh_ratio = 1.8;          // aspect ratio of boids (bh / bw)
 
 // Define constants for each barrier
@@ -93,19 +94,57 @@ function preload() {
   info_text_img = loadImage('assets/info_screen.png');           // preload both images 
   info_text_bkgd_img = loadImage('assets/info_screen_bkgd.png'); // " "
 }
-
-
-
 function setup() {
-  checkMobile();    // determine browser type
-
   w = windowWidth;  // window dimensions
   h = windowHeight; // " "
 
+  checkMobile();    // determine browser type
+
   createCanvas(w, h);
   
+  set_scale();
+
+  // Initiate wave animation
+  for(let i = 0; i < num_segments; i++) {
+    append(wave_pos, 0); // add intial vertical position of wave segments
+  }
+  wave_pos_2 = [...wave_pos]; // copy array to background wave positions
+ 
+}
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  w = windowWidth; h = windowHeight; // reset window dimensions
+
+  checkMobile();    // determine browser type
+
+  // Delete all objects
+  boids = [];    // clear array
+  barriers = []; // " "
+
+  set_scale();
+}
+function checkMobile() {
+  // Determines whether browser is a mobile device. 
+  // https://www.geeksforgeeks.org/how-to-detect-whether-the-website-is-being-opened-in-a-mobile-device-or-a-desktop-in-javascript/
+  
+  /*
+  let details = navigator.userAgent; // storing user's device details in a variable
+  let regexp = /android|iphone|kindle|ipad/i; // creating a regular expression containing some mobile devices keywords to search it in details string
+  let isMobileDevice = regexp.test(details); // using test() method to search regexp in details it returns boolean value
+  */
+
+  // set mobile setting
+  if (h > w) { 
+    isMobile = true; 
+  } else { 
+    isMobile = false; 
+  }
+}
+function set_scale(){
+  // Scale all objects
+
   // Define boid size
-  bw = w*h * bw_area_ratio; // overall size based on screen area
+  bw = min(w,h) * bw_area_ratio; // overall size based on screen area
   bh = bw * bwh_ratio;      // height based on aspect ratio
 
   // Define barrier size
@@ -115,54 +154,6 @@ function setup() {
   dist_s = bh * 1.4;
   dist_a = bh * 5.0; 
   dist_c = bh * 8.0;
-
-  // Initiate wave animation
-  for(let i = 0; i < num_segments; i++) {
-    append(wave_pos, 0); // add intial vertical position of wave segments
-  }
-  wave_pos_2 = [...wave_pos]; // copy array to background wave positions
- 
-}
-
-
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  w = windowWidth; h = windowHeight; // reset window dimensions
-
-  // Delete all objects
-  boids = [];    // clear array
-  barriers = []; // " "
-
-  // Update boid size
-  bw = w*h * bw_area_ratio; // overall size based on screen area
-  bh = bw * bwh_ratio;      // height based on aspect ratio
-
-  // Update barrier size
-  br_d = br_b_ratio * bw; // barrier size based on boid size
-
-  // Reset proximity conditions for flocking
-  dist_s = bh * 1.4;
-  dist_a = bh * 5.0; 
-  dist_c = bh * 8.0;
-}
-
-
-
-function checkMobile() {
-  // Determines whether browser is a mobile device. 
-  // https://www.geeksforgeeks.org/how-to-detect-whether-the-website-is-being-opened-in-a-mobile-device-or-a-desktop-in-javascript/
-  
-  let details = navigator.userAgent; // storing user's device details in a variable
-  let regexp = /android|iphone|kindle|ipad/i; // creating a regular expression containing some mobile devices keywords to search it in details string
-  let isMobileDevice = regexp.test(details); // using test() method to search regexp in details it returns boolean value
-  
-  // set mobile setting
-  if (isMobileDevice) { 
-    isMobile = true; 
-  } else { 
-    isMobile = false; 
-  }
 }
 
 
@@ -248,9 +239,6 @@ function waves () {
   }
 
 }
-
-
-
 function sky() {
   // Display sky texture behind surface waves
   
@@ -279,9 +267,6 @@ function sky() {
   }
 
 }
-
-
-
 function title() {
   // Display game title
 
@@ -290,9 +275,6 @@ function title() {
   textSize(w * 0.06); textAlign(LEFT);
   text('fshfsh', w * 0.02, h * 0.12);
 }
-
-
-
 function ocean() {
   // Draw ocean background color (allows buoy to appear floating)
 
@@ -406,9 +388,6 @@ function options () {
   }
 
 }
-
-
-
 function reset() {
   // Reset all boids and barriers if "reset" buoy is selected
   if( game_option == 3 ) {
@@ -417,9 +396,6 @@ function reset() {
   }
 
 }
-
-
-
 function remove_boid() {
   // Delete boid if (1) out-of-bounds or (2) too close to shark ("eaten")
 
@@ -441,9 +417,6 @@ function remove_boid() {
   }
 
 }
-
-
-
 function info() {
   // Display information tab for the game. 
 
@@ -507,15 +480,14 @@ function info() {
 
 
 // Process all click & touch actions
-
 function mouseReleased () {
   // Turn off mouse click when released.
-  if( isMobile == false ) {
-    mouseClick = true; 
-    return false; // prevent default behavior in browser
-  }
+  //if( isMobile == false ) {
+  mouseClick = true; 
+  return false; // prevent default behavior in browser
+  //}
 }
-
+/*
 function touchEnded () {
   // Turn off mouse click when released (mobile version).
   if( isMobile == true ) {
@@ -523,6 +495,7 @@ function touchEnded () {
     return false; // prevent default behavior in browser
   }
 }
+*/
 
 
 
@@ -865,11 +838,11 @@ class Boid {
     //ellipse(this.pos.x, this.pos.y, 2*dist_c, 2*dist_c); // cohesion
     
     // show wall lines for window frame
-    stroke('#FFFF00'); strokeWeight(1);
-    line(wall_dist*w, 0, wall_dist*w, h);     // left 
-    line(w-wall_dist*w, 0, w-wall_dist*w, h); // right
-    line(0,(wave_ht*h + wall_dist*w * 0.4), w, (wave_ht*h + wall_dist*w * 0.4) );         // top
-    line(0, h-wall_dist*w, w, h-wall_dist*w); // bottom
+    //stroke('#FFFF00'); strokeWeight(1);
+    //line(wall_dist*w, 0, wall_dist*w, h);     // left 
+    //line(w-wall_dist*w, 0, w-wall_dist*w, h); // right
+    //line(0,(wave_ht*h + wall_dist*w * 0.4), w, (wave_ht*h + wall_dist*w * 0.4) );         // top
+    //line(0, h-wall_dist*w, w, h-wall_dist*w); // bottom
   }
 
 }
