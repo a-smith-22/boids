@@ -160,7 +160,7 @@ function set_scale(){
   pixelDensity(1); 
   if(isMobile){
     frameRate(30); // ratio of mobile FPS to desktop FPS is ~2.0 -> motion scaled accordinly
-    fpsr = 2.0
+    fpsr = 2.0;
 
     bw = min(w,h) * bw_area_ratio * 0.8; // make boids slightly smaller
     br_b_ratio = 3.0; // same as above for barriers
@@ -536,11 +536,16 @@ function info() {
 // Process all click & touch actions
 function mouseReleased () {
   // Turn off mouse click when released.
+  /*
   if( isMobile == false ) {
     mouseClick = true; 
     return false; // prevent default behavior in browser
   }
+  */
+  mouseClick = true; 
+
 }
+/*
 function touchEnded () {
   // Turn off mouse click when released (mobile version).
   if( isMobile == true ) {
@@ -548,6 +553,7 @@ function touchEnded () {
     return false; // prevent default behavior in browser
   }
 }
+*/
 
 
 
@@ -819,7 +825,10 @@ class Boid {
     if( this.vel.mag() < abs_max_vel ) {
       this.vel = this.vel.add(this.acc); // increase velocity only if below max threshold
     } 
-    this.pos = this.pos.add(this.vel.mult(fpsr));    
+    this.pos = this.pos.add(this.vel);  
+    if(fpsr == 2){
+      this.pos = this.pos.add(this.vel); // repeat twice as fpsr = 2 for mobile
+    }
     
     // reset acceleration
     this.acc.set(0,0);
