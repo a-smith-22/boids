@@ -247,12 +247,13 @@ function draw() {
 
   mouseClick = false; // reset mouse boolean at end of frame
 
+  /*
   let sz = w/100; 
   fill(255); textSize(sz);
   text(w, w/2, h/2);
   text(h, w/2, h/2 + sz);
   text(round(frameRate(),0), w/2, h/2+2*sz);
-
+  */
 }
 
 
