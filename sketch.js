@@ -26,7 +26,7 @@ const bwh_ratio = 1.8;      // aspect ratio of boids (bh / bw)
 
 // Define constants for each barrier
 let br_d;               // diameter of each barrier
-const br_b_ratio = 4.0; // ratio of barrier diameter to boid width 
+var br_b_ratio = 4.0; // ratio of barrier diameter to boid width 
 
 // Iso movement constants for boids
 var max_vel = 2.0;     // maximum target velocity in pixels/sec (desired speed, true vel may exceed this due to barriers/shark)
@@ -157,11 +157,15 @@ function set_scale(){
 
   // Rescale all size, position, speed, and accelerations for mobile mode
   pixelDensity(1); 
+  frameRate(60);
   if(isMobile){
-    bw = min(w,h) * bw_area_ratio * 0.8;
+    bw = min(w,h) * bw_area_ratio * 0.8; // make boids slightly smaller
+    br_b_ratio = 3.0; // same as above for barriers
 
-    buoy_pos = [[0.30, 0], [0.45, 0], [0.60, 0], [0.75, 0], [0.90, 0]];
+    buoy_dia = 0.04*3; // make buoys larger
+    buoy_pos = [[0.30, 0], [0.45, 0], [0.60, 0], [0.75, 0], [0.90, 0]]; // increase spacing
 
+    num_segments = 100; // decrease sky resolution
 /*  
     max_vel = 2.0 * displayDensity();     
     abs_max_vel = 5.0 * displayDensity();
