@@ -9,7 +9,8 @@ NOTES:
 */
 
 // System variables 
-let isMobile = false; // whether browser is on mobile device -> used to change touch detection and rotate screen orientation
+var isMobile = false; // whether browser is on mobile device -> used to change touch detection and rotate screen orientation
+var fpsr = 2.0 ; // FPS ratio -> ratio of desktop FPS to current FPS, scalar applied to motion 
 
 // Create boids array
 const max_boid_pop = 100; // set limit on population of boids
@@ -158,7 +159,8 @@ function set_scale(){
   // Rescale all size, position, speed, and accelerations for mobile mode
   pixelDensity(1); 
   if(isMobile){
-    frameRate(120);
+    frameRate(30); // ratio of mobile FPS to desktop FPS is ~2.0 -> motion scaled accordinly
+    fpsr = 2.0
 
     bw = min(w,h) * bw_area_ratio * 0.8; // make boids slightly smaller
     br_b_ratio = 3.0; // same as above for barriers
@@ -196,6 +198,7 @@ function set_scale(){
 */
   } else {
     frameRate(60);
+    fpsr = 1.0;
   }
 }
 
@@ -816,7 +819,7 @@ class Boid {
     if( this.vel.mag() < abs_max_vel ) {
       this.vel = this.vel.add(this.acc); // increase velocity only if below max threshold
     } 
-    this.pos = this.pos.add(this.vel);    
+    this.pos = this.pos.add(this.vel*fpsr);    
     
     // reset acceleration
     this.acc.set(0,0);
